@@ -1,0 +1,14 @@
+module.tx_tslive {
+	view {
+		# cat=module.tx_tslive/file; type=string; label=Path to template root (BE)
+		templateRootPath = EXT:tslive/Resources/Private/Templates/
+		# cat=module.tx_tslive/file; type=string; label=Path to template partials (BE)
+		partialRootPath = EXT:tslive/Resources/Private/Partials/
+		# cat=module.tx_tslive/file; type=string; label=Path to template layouts (BE)
+		layoutRootPath = EXT:tslive/Resources/Private/Layouts/
+	}
+	persistence {
+		# cat=module.tx_tslive//a; type=int+; label=Default storage PID
+		storagePid =
+	}
+}

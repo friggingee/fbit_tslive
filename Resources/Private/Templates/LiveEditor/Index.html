@@ -1,0 +1,103 @@
+<f:layout name="Default" />
+
+This Template is responsible for creating a table of domain objects.
+
+
+If you modify this template, do not forget to change the overwrite settings
+in /Configuration/ExtensionBuilder/settings.yaml:
+Resources:
+Private:
+Templates:
+List.html: keep
+
+Otherwise your changes will be overwritten the next time you save the extension in the extension builder
+
+<f:section name="content">
+
+	<f:flashMessages />
+
+	<f:form controller="index" method="post">
+		<f:form.hidden name="currentcobjdata" value="{currentcobjdata}" />
+		<f:form.hidden name="parseablecobjdata" value="{parseablecobjdata}" />
+		<table width="1502">
+			<tr>
+				<td width="501">
+					<label for="cobjdata"><strong>Data for cObj</strong></label><br />
+					<f:form.textarea id="cobjdata" cols="80" rows="10" name="cobjdata" value="{cobjdata}" />
+				</td>
+				<td width="451">
+					<strong>Current cObj-data:</strong>
+					<label for="clearcobj">Clear cObj-data:</label>
+					<f:form.checkbox id="clearcobj" name="clearcobj" value="1" /><br />
+					<pre style="width:450px;height:300px;overflow:scroll;">
+{currentcobjdata}
+					</pre>
+				</td>
+				<td width="450">
+					<strong>Please provide data for the cObj in the following syntax:</strong><br /><br />
+
+					<pre>
+key1 = value1
+array [
+	array_key1 = value1
+	array_key2 = value2
+	array_array [
+		array_array_key1 = value1
+	]
+	array_key3 = value3
+]
+key2 = value2
+					</pre>
+
+					Parsing rules:
+					<ol>
+						<li>Each line is parsed separately.</li>
+						<li>A line break ends a key-value-assignment.</li>
+						<li>Use either the equal sign to state a key-value-assigment as in "array_key" => "value", <br />
+							or square brackets to declare the value to be another array as in "array_key" => array(),.</li>
+						<li>Indentation is ignored and trimmed.</li>
+						<li>Comments are not allowed.</li>
+						<li>Invalid characters or unmatching number of opening/closing brackets will result in parsing errors.</li>
+					</ol>
+				</td>
+			</tr>
+			<tr>
+				<td width="501">
+					Select table from which to load record as cObj-data:
+					<f:form.select name="currenttable" options="{tablelist}" value="{currenttable}" />
+				</td>
+				<td width="951" colspan="2">
+					Select Record to load as cObj-data:
+
+					<table width="100%">
+						<tr>
+							<th>uid</th>
+							<th>label</th>
+						</tr>
+						<f:for each="{recordList}" as="record">
+							<tr>
+								<td>{record.uid}</td>
+								<td><f:link.action additionalParams="{tx_tslive_tools_tslivetslive: {cobjdatatable:'{currenttable}',cobjdatauid:'{record.uid}'}}" addQueryString="1">{record.label}</f:link.action></td>
+							</tr>
+						</f:for>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td width="501">
+					<label for="typoscript">typoscript configuration</label><br />
+					<f:form.textarea id="typoscript" cols="80" rows="20" name="typoscript" value="{rawTs}" />
+				</td>
+				<td width="951" colspan="2">
+					rendering output<br />
+					<div id="tsoutput" style="border:1px solid blue;background:white;"><f:format.html>{parsedTs}</f:format.html></div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<f:form.submit value="Render!" />
+				</td>
+			</tr>
+	</f:form>
+
+</f:section>

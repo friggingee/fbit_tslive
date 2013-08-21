@@ -1,0 +1,11 @@
+# Module configuration
+module.tx_tslive {
+	persistence {
+		storagePid = {$plugin.tx_tslive.persistence.storagePid}
+	}
+	view {
+		templateRootPath = {$module.tx_tslive.view.templateRootPath}
+		partialRootPath = {$module.tx_tslive.view.partialRootPath}
+		layoutRootPath = {$module.tx_tslive.view.layoutRootPath}
+	}
+}
