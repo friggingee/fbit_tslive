@@ -1,5 +1,8 @@
+2013-08-22 Grigori Prokhorov <gee@friggin.de>
+	0.1.1 removed debug statements
+
 2013-08-16 Grigori Prokhorov <gee@friggin.de>
-	0.1.0	new features:
+	0.1.0 new features:
 		* raised extension status to beta
 		* raised version number to 0.1.0
 		* added option to feed your own data to be used as cObj-data for parsing tests
@@ -7,4 +10,4 @@
 		* added parser for hand-made cObj-data
 
 2013-08-02 Grigori Prokhorov <gee@friggin.de>
-	0.0.1	initial version
+	0.0.1 initial version
