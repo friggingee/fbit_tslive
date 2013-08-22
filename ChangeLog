@@ -1,4 +1,10 @@
 2013-08-22 Grigori Prokhorov <gee@friggin.de>
+	0.4.1 Hotfix release:
+		* fixed Issue #51267: allow for cObj-data to be changed from within textarea without clearing the current value first manually
+		* improved code formatting
+
+	0.4.0 raised version number to allow for downloading latest version from TER
+
 	0.1.1 removed debug statements
 
 2013-08-16 Grigori Prokhorov <gee@friggin.de>

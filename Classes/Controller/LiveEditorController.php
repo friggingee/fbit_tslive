@@ -49,6 +49,8 @@ class Tx_Tslive_Controller_LiveEditorController extends Tx_Extbase_MVC_Controlle
 			// Look up the page
 		$TSFE->sys_page = t3lib_div::makeInstance('t3lib_pageSelect');
 		$TSFE->sys_page->init($TSFE->showHiddenPage);
+
+		$TSFE->csConvObj = t3lib_div::makeInstance('t3lib_cs');
 	}
 
 	/**
@@ -99,7 +101,10 @@ class Tx_Tslive_Controller_LiveEditorController extends Tx_Extbase_MVC_Controlle
 		if ($clearcobj === '1') {
 			$cObjData = array();
 		} else {
-			if (empty($currentcobjdata)) {
+			if (empty($currentcobjdata)
+					// TODO: find a more suitable solution to check if $cobjdata has changed
+				|| http_build_query(array('parsedcobjdata' => $this->parseCObjData($cobjdata))) !== $parseablecobjdata
+			) {
 				if (!empty($cobjdatatable) && intval($cobjdatauid) > 0) {
 					$recordData = $TYPO3_DB->exec_SELECTgetSingleRow('*', $cobjdatatable, 'uid = ' . $cobjdatauid);
 					$cObjData = $recordData;
@@ -109,7 +114,11 @@ class Tx_Tslive_Controller_LiveEditorController extends Tx_Extbase_MVC_Controlle
 					$parsedData = $this->parseCObjData($cobjdata);
 
 					if (empty($parsedData)) {
-						$this->flashMessageContainer->add('Input data for cObj data seems to be malformed. Please refer to parsing syntax definition on the right.','Input Data Rendering failed!', t3lib_Flashmessage::ERROR);
+						$this->flashMessageContainer->add(
+							'Input data for cObj data seems to be malformed. Please refer to parsing syntax definition on the right.',
+							'Input Data Rendering failed!',
+							t3lib_Flashmessage::ERROR
+						);
 					} else {
 						$cObjData = $parsedData;
 					}
@@ -122,9 +131,9 @@ class Tx_Tslive_Controller_LiveEditorController extends Tx_Extbase_MVC_Controlle
 			}
 		}
 
-		$TSFE->cObj->data = $cObjData;
-
 		if(!empty($cObjData)) {
+			$TSFE->cObj->data = $cObjData;
+
 			$this->view->assign('parseablecobjdata', http_build_query(array('parsedcobjdata' => $cObjData)));
 			$this->view->assign('currentcobjdata', var_export($cObjData, 1));
 		}
