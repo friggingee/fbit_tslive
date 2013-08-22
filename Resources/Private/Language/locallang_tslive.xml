@@ -6,9 +6,9 @@
 	</meta>
 	<data type="array">
 		<languageKey index="default" type="array">
-			<label index="mlang_tabs_tab">tslive</label>
-			<label index="mlang_labels_tabdescr">tslive</label>
-			<label index="mlang_labels_tablabel">tslive</label>
+			<label index="mlang_tabs_tab">TS Live</label>
+			<label index="mlang_labels_tabdescr">TS Live Editor</label>
+			<label index="mlang_labels_tablabel">TS Live Editor</label>
 		</languageKey>
 	</data>
 </T3locallang>
