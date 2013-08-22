@@ -67,8 +67,6 @@ class Tx_Tslive_Controller_LiveEditorController extends Tx_Extbase_MVC_Controlle
 			'live.' => array()
 		);
 
-t3lib_utility_Debug::debug($this->requestArguments);
-
 		$ts = $this->requestArguments['typoscript'];
 		$cobjdata = $this->requestArguments['cobjdata'];
 		$currenttable = $this->requestArguments['currenttable'];
