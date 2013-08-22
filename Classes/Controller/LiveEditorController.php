@@ -106,7 +106,6 @@ class Tx_Tslive_Controller_LiveEditorController extends Tx_Extbase_MVC_Controlle
 				}
 
 				if (!empty($cobjdata)) {
-					t3lib_utility_Debug::debug('parsing cobj data...');
 					$parsedData = $this->parseCObjData($cobjdata);
 
 					if (empty($parsedData)) {
@@ -152,7 +151,6 @@ class Tx_Tslive_Controller_LiveEditorController extends Tx_Extbase_MVC_Controlle
 	 * @return mixed
 	 */
 	protected function parseCObjData($cobjdata) {
-		t3lib_utility_Debug::debug($cobjdata);
 		$rawData = explode("\n", $cobjdata);
 		$parsedData = array();
 		$json = '';
