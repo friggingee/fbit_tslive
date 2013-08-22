@@ -99,7 +99,6 @@ class Tx_Tslive_Controller_LiveEditorController extends Tx_Extbase_MVC_Controlle
 		if ($clearcobj === '1') {
 			$cObjData = array();
 		} else {
-			t3lib_utility_Debug::debug(array(empty($currentcobjdata), $currentcobjdata, gettype($currentcobjdata)));
 			if (empty($currentcobjdata)) {
 				if (!empty($cobjdatatable) && intval($cobjdatauid) > 0) {
 					$recordData = $TYPO3_DB->exec_SELECTgetSingleRow('*', $cobjdatatable, 'uid = ' . $cobjdatauid);
