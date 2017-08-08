@@ -62,7 +62,8 @@ class LiveEditorController extends ActionController
      */
     protected $requestArguments = [];
 
-    public function initializeView(ViewInterface $view) {
+    public function initializeView(ViewInterface $view)
+    {
         $this->view->getModuleTemplate()->getPageRenderer()->loadRequireJsModule('TYPO3/CMS/FbitTslive/Module');
     }
 
@@ -162,7 +163,8 @@ class LiveEditorController extends ActionController
         // $this->view->assign('cobjdata', $cobjdata);
     }
 
-    public function parseTS(array $params, AjaxRequestHandler &$ajaxRequestHandler = null) {
+    public function parseTS(array $params, AjaxRequestHandler &$ajaxRequestHandler = null)
+    {
         $ts = $params['ts'];
         if ($params['request'] instanceof ServerRequest) {
             $ts = $params['request']->getParsedBody()['ts'];
@@ -181,17 +183,22 @@ class LiveEditorController extends ActionController
 
         FrontendSimulatorUtility::simulateFrontendEnvironment();
 
-        /** @var TimeTracker $GLOBALS['TT'] */
+        /** @var TimeTracker $GLOBALS ['TT'] */
         $GLOBALS['TT'] = GeneralUtility::makeInstance(TimeTracker::class);
         $GLOBALS['TT']->start();
 
         // Look up the page
         $GLOBALS['TSFE']->sys_page = GeneralUtility::makeInstance(PageRepository::class);
         $GLOBALS['TSFE']->sys_page->init($GLOBALS['TSFE']->showHiddenPage);
+        $GLOBALS['TSFE']->config['config']['contentObjectExceptionHandler'] = 0;
 
         $GLOBALS['TSFE']->csConvObj = GeneralUtility::makeInstance(CharsetConverter::class);
 
-        $parsedTs = $GLOBALS['TSFE']->cObj->cObjGetSingle($tsBase['live'], $tsBase['live.']);
+        try {
+            $parsedTs = $GLOBALS['TSFE']->cObj->cObjGetSingle($tsBase['live'], $tsBase['live.']);
+        } catch (\Exception $exception) {
+            $parsedTs = $exception->getMessage();
+        }
 
         if ($ajaxRequestHandler instanceof AjaxRequestHandler) {
             $ajaxRequestHandler->setContentFormat('json');
