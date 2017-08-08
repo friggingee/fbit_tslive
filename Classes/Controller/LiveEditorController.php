@@ -26,137 +26,180 @@ namespace FBIT\TSLive\Controller;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Backend\View\BackendTemplateView;
+use TYPO3\CMS\Core\Charset\CharsetConverter;
+use TYPO3\CMS\Core\Database\DatabaseConnection;
+use TYPO3\CMS\Core\Http\AjaxRequestHandler;
+use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\TimeTracker\TimeTracker;
+use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
+use TYPO3\CMS\Extbase\Utility\FrontendSimulatorUtility;
+use TYPO3\CMS\Frontend\Page\PageRepository;
 
 /**
- * @package tslive
+ * @package fbit_tslive
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
 class LiveEditorController extends ActionController
 {
-    // /**
-    //  * is called before every action call
-    //  *
-    //  * @return void
-    //  */
-    // public function initializeAction() {
-    // 	global $TSFE;
-    // 	global $TT;
-    //
-    // 	$this->requestArguments = $this->request->getArguments();
-    //
-    // 	Tx_Extbase_Utility_FrontendSimulator::simulateFrontendEnvironment();
-    //
-    // 	$temp_TTclassName = t3lib_div::makeInstanceClassName('t3lib_timeTrack');
-    // 	$TT = new $temp_TTclassName();
-    // 	$TT->start();
-    // 		// Look up the page
-    // 	$TSFE->sys_page = t3lib_div::makeInstance('t3lib_pageSelect');
-    // 	$TSFE->sys_page->init($TSFE->showHiddenPage);
-    //
-    // 	$TSFE->csConvObj = t3lib_div::makeInstance('t3lib_cs');
-    // }
-    //
-    // /**
-    //  * Main action
-    //  *
-    //  * @return void
-    //  */
-    // protected function indexAction() {
-    // 	/** @var $TYPO3_DB t3lib_DB */
-    // 	global $TYPO3_DB;
-    // 	global $TCA;
-    // 	global $TSFE;
-    //
-    // 	$tsBase = array(
-    // 		'live' => 'COA',
-    // 		'live.' => array()
-    // 	);
-    //
-    // 	$ts = $this->requestArguments['typoscript'];
-    // 	$cobjdata = $this->requestArguments['cobjdata'];
-    // 	$currenttable = $this->requestArguments['currenttable'];
-    // 	$cobjdatauid = $this->requestArguments['cobjdatauid'];
-    // 	$cobjdatatable = $this->requestArguments['cobjdatatable'];
-    // 	$currentcobjdata = $this->requestArguments['currentcobjdata'];
-    // 	$parseablecobjdata = $this->requestArguments['parseablecobjdata'];
-    // 	$clearcobj = $this->requestArguments['clearcobj'];
-    //
-    // 	$tablelist = array('0' => '');
-    // 	$tablelistRes = $TYPO3_DB->sql_query('SHOW TABLES');
-    // 	while ($tablelistRet = $TYPO3_DB->sql_fetch_assoc($tablelistRes)) {
-    // 		$tablelist[reset($tablelistRet)] = reset($tablelistRet);
-    // 	}
-    //
-    // 	$this->view->assign('tablelist', $tablelist);
-    // 	$this->view->assign('currenttable', $currenttable);
-    //
-    // 	if (!empty($currenttable)) {
-    // 		$tableCA = t3lib_div::loadTCA($currenttable);
-    //
-    // 		$recordList = $TYPO3_DB->exec_SELECTgetRows(
-    // 			'uid, ' . $TCA[$currenttable]['ctrl']['label'] . ' AS label',
-    // 			$currenttable
-    // 		);
-    //
-    // 		$this->view->assign('recordList', $recordList);
-    // 	}
-    //
-    // 	if ($clearcobj === '1') {
-    // 		$cObjData = array();
-    // 	} else {
-    // 		if (empty($currentcobjdata)
-    // 				// TODO: find a more suitable solution to check if $cobjdata has changed
-    // 			|| http_build_query(array('parsedcobjdata' => $this->parseCObjData($cobjdata))) !== $parseablecobjdata
-    // 		) {
-    // 			if (!empty($cobjdatatable) && intval($cobjdatauid) > 0) {
-    // 				$recordData = $TYPO3_DB->exec_SELECTgetSingleRow('*', $cobjdatatable, 'uid = ' . $cobjdatauid);
-    // 				$cObjData = $recordData;
-    // 			}
-    //
-    // 			if (!empty($cobjdata)) {
-    // 				$parsedData = $this->parseCObjData($cobjdata);
-    //
-    // 				if (empty($parsedData)) {
-    // 					$this->flashMessageContainer->add(
-    // 						'Input data for cObj data seems to be malformed. Please refer to parsing syntax definition on the right.',
-    // 						'Input Data Rendering failed!',
-    // 						t3lib_Flashmessage::ERROR
-    // 					);
-    // 				} else {
-    // 					$cObjData = $parsedData;
-    // 				}
-    // 			}
-    // 		} else {
-    // 			parse_str($parseablecobjdata);
-    // 			if (is_array($parsedcobjdata)) {
-    // 				$cObjData = $parsedcobjdata;
-    // 			}
-    // 		}
-    // 	}
-    //
-    // 	if(!empty($cObjData)) {
-    // 		$TSFE->cObj->data = $cObjData;
-    //
-    // 		$this->view->assign('parseablecobjdata', http_build_query(array('parsedcobjdata' => $cObjData)));
-    // 		$this->view->assign('currentcobjdata', var_export($cObjData, 1));
-    // 	}
-    //
-    // 	if (!empty($ts)) {
-    // 		$TSParser = new t3lib_TSparser();
-    // 		$TSParser->parse($ts);
-    //
-    // 		$tsBase['live.'] = $TSParser->setup;
-    //
-    // 		$parsedTs = $TSFE->cObj->cObjGetSingle($tsBase['live'], $tsBase['live.']);
-    //
-    // 		$this->view->assign('rawTs', $ts);
-    // 		$this->view->assign('parsedTs', $parsedTs);
-    // 	}
-    //
-    // 	$this->view->assign('cobjdata', $cobjdata);
-    // }
+    /**
+     * @var string
+     */
+    protected $defaultViewObjectName = BackendTemplateView::class;
+
+    /**
+     * @var BackendTemplateView
+     */
+    protected $view;
+
+    /**
+     * @var array
+     */
+    protected $requestArguments = [];
+
+    public function initializeView(ViewInterface $view) {
+        $this->view->getModuleTemplate()->getPageRenderer()->loadRequireJsModule('TYPO3/CMS/FbitTslive/Module');
+    }
+
+    /**
+     * is called before every action call
+     *
+     * @return void
+     */
+    public function initializeAction()
+    {
+        $this->requestArguments = $this->request->getArguments();
+    }
+
+    /**
+     * Main action
+     *
+     * @return void
+     */
+    protected function indexAction()
+    {
+        $ts = $this->requestArguments['typoscript'];
+        // $cobjdata = $this->requestArguments['cobjdata'];
+        // $currenttable = $this->requestArguments['currenttable'];
+        // $cobjdatauid = $this->requestArguments['cobjdatauid'];
+        // $cobjdatatable = $this->requestArguments['cobjdatatable'];
+        // $currentcobjdata = $this->requestArguments['currentcobjdata'];
+        // $parseablecobjdata = $this->requestArguments['parseablecobjdata'];
+        // $clearcobj = $this->requestArguments['clearcobj'];
+        //
+        // $tablelist = ['0' => ''];
+        // $tablelistRes = $GLOBALS['TYPO3_DB']->sql_query('SHOW TABLES');
+        // while ($tablelistRet = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($tablelistRes)) {
+        //     $tablelist[reset($tablelistRet)] = reset($tablelistRet);
+        // }
+        //
+        // $this->view->assign('tablelist', $tablelist);
+        // $this->view->assign('currenttable', $currenttable);
+        //
+        // if (!empty($currenttable)) {
+        //     $tableCA = $GLOBALS['TCA'][$currenttable];
+        //
+        //     $recordList = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+        //         'uid, ' . $GLOBALS['TCA'][$currenttable]['ctrl']['label'] . ' AS label',
+        //         $currenttable
+        //     );
+        //
+        //     $this->view->assign('recordList', $recordList);
+        // }
+        //
+        // if ($clearcobj === '1') {
+        //     $cObjData = [];
+        // } else {
+        //     if (empty($currentcobjdata)
+        //         // TODO: find a more suitable solution to check if $cobjdata has changed
+        //         || http_build_query(['parsedcobjdata' => $this->parseCObjData($cobjdata)]) !== $parseablecobjdata
+        //     ) {
+        //         if (!empty($cobjdatatable) && intval($cobjdatauid) > 0) {
+        //             $recordData = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow('*', $cobjdatatable, 'uid = ' . $cobjdatauid);
+        //             $cObjData = $recordData;
+        //         }
+        //
+        //         if (!empty($cobjdata)) {
+        //             $parsedData = $this->parseCObjData($cobjdata);
+        //
+        //             if (empty($parsedData)) {
+        //                 $this->addFlashMessage(
+        //                     'Input data for cObj data seems to be malformed. Please refer to parsing syntax definition on the right.',
+        //                     'Input Data Rendering failed!',
+        //                     FlashMessage::ERROR
+        //                 );
+        //             } else {
+        //                 $cObjData = $parsedData;
+        //             }
+        //         }
+        //     } else {
+        //         parse_str($parseablecobjdata);
+        //         if (is_array($parsedcobjdata)) {
+        //             $cObjData = $parsedcobjdata;
+        //         }
+        //     }
+        // }
+        //
+        // if (!empty($cObjData)) {
+        //     $GLOBALS['TSFE']->cObj->data = $cObjData;
+        //
+        //     $this->view->assign('parseablecobjdata', http_build_query(['parsedcobjdata' => $cObjData]));
+        //     $this->view->assign('currentcobjdata', var_export($cObjData, 1));
+        // }
+
+        if (!empty($ts)) {
+            $parsedTs = $this->parseTS(['ts' => $ts]);
+
+            $this->view->assign('rawTs', $ts);
+            $this->view->assign('parsedTs', $parsedTs);
+        }
+
+        // $this->view->assign('cobjdata', $cobjdata);
+    }
+
+    public function parseTS(array $params, AjaxRequestHandler &$ajaxRequestHandler = null) {
+        $ts = $params['ts'];
+        if ($params['request'] instanceof ServerRequest) {
+            $ts = $params['request']->getParsedBody()['ts'];
+        }
+
+        $tsBase = [
+            'live' => 'COA',
+            'live.' => [],
+        ];
+
+        /** @var TypoScriptParser $TSParser */
+        $TSParser = GeneralUtility::makeInstance(TypoScriptParser::class);
+        $TSParser->parse($ts);
+
+        $tsBase['live.'] = $TSParser->setup;
+
+        FrontendSimulatorUtility::simulateFrontendEnvironment();
+
+        /** @var TimeTracker $GLOBALS['TT'] */
+        $GLOBALS['TT'] = GeneralUtility::makeInstance(TimeTracker::class);
+        $GLOBALS['TT']->start();
+
+        // Look up the page
+        $GLOBALS['TSFE']->sys_page = GeneralUtility::makeInstance(PageRepository::class);
+        $GLOBALS['TSFE']->sys_page->init($GLOBALS['TSFE']->showHiddenPage);
+
+        $GLOBALS['TSFE']->csConvObj = GeneralUtility::makeInstance(CharsetConverter::class);
+
+        $parsedTs = $GLOBALS['TSFE']->cObj->cObjGetSingle($tsBase['live'], $tsBase['live.']);
+
+        if ($ajaxRequestHandler instanceof AjaxRequestHandler) {
+            $ajaxRequestHandler->setContentFormat('json');
+            $ajaxRequestHandler->addContent('parsedTs', $parsedTs);
+        } else {
+            return $parsedTs;
+        }
+    }
     //
     // /**
     //  * Renders a string into a json-string and returns the decoded string as an array
@@ -164,38 +207,39 @@ class LiveEditorController extends ActionController
     //  * @param $cobjdata
     //  * @return mixed
     //  */
-    // protected function parseCObjData($cobjdata) {
-    // 	$rawData = explode("\n", $cobjdata);
-    // 	$parsedData = array();
-    // 	$json = '';
+    // protected function parseCObjData($cobjdata)
+    // {
+    //     $rawData = explode("\n", $cobjdata);
+    //     $parsedData = [];
+    //     $json = '';
     //
-    // 	if (is_array($rawData)) {
-    // 		foreach ($rawData as $line) {
-    // 			$line = trim($line, "\n ");
+    //     if (is_array($rawData)) {
+    //         foreach ($rawData as $line) {
+    //             $line = trim($line, "\n ");
     //
-    // 			preg_match('/^(.*?)(=|\[|\])(.*?)$/', $line, $matches);
+    //             preg_match('/^(.*?)(=|\[|\])(.*?)$/', $line, $matches);
     //
-    // 			if (!empty($matches)) {
-    // 				switch (trim($matches[2])) {
-    // 					case '=':
-    // 						$json .= '"' . trim($matches[1]) . '":"' . trim($matches[3]) . '",';
-    // 						break;
-    // 					case '[':
-    // 						$json .= '"' . trim($matches[1]) . '":{';
-    // 						break;
-    // 					case ']':
-    // 						$json = rtrim($json, ',');
-    // 						$json .= '},';
-    // 						break;
-    // 				}
-    // 			}
-    // 		}
+    //             if (!empty($matches)) {
+    //                 switch (trim($matches[2])) {
+    //                     case '=':
+    //                         $json .= '"' . trim($matches[1]) . '":"' . trim($matches[3]) . '",';
+    //                         break;
+    //                     case '[':
+    //                         $json .= '"' . trim($matches[1]) . '":{';
+    //                         break;
+    //                     case ']':
+    //                         $json = rtrim($json, ',');
+    //                         $json .= '},';
+    //                         break;
+    //                 }
+    //             }
+    //         }
     //
-    // 		$json = '{' . rtrim($json, ',') . '}';
-    // 	}
+    //         $json = '{' . rtrim($json, ',') . '}';
+    //     }
     //
-    // 	$parsedData = json_decode($json, 1);
+    //     $parsedData = json_decode($json, 1);
     //
-    // 	return $parsedData;
+    //     return $parsedData;
     // }
 }

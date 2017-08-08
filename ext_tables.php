@@ -23,7 +23,9 @@ if (TYPO3_MODE === 'BE') {
         ]
     );
 
+    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::registerAjaxHandler(
+        'LiveEditorController::parseTS',
+        \FBIT\TSLive\Controller\LiveEditorController::class . '->parseTS'
+    );
 }
-
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($_EXTKEY, 'Configuration/TypoScript', 'TSLive');
 ?>

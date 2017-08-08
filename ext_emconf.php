@@ -1,6 +1,6 @@
 <?php
 /***************************************************************
- * Extension Manager/Repository config file for ext "tslive".
+ * Extension Manager/Repository config file for ext "fbit_tslive".
  *
  * Auto generated 02-08-2013 10:35
  *
